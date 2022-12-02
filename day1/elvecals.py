@@ -1,6 +1,4 @@
-''' takes a csv list of elves with calories and finds the ones with the highest '''
-
-import csv
+''' takes a list of elves with calories and finds the ones with the highest '''
 
 # writing the parameters here, could also just call from command line
 filename = 'input_day1.data'
