@@ -1,5 +1,6 @@
 ''' rucksack rearrange day 3 '''
 
+# put in the test data set to can run checks with it
 test_list = [
 	"vJrwpWtwJgWrhcsFMMfFFhFp",
 	"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL",
@@ -9,8 +10,7 @@ test_list = [
 	"CrZsJsPPZsGzwwsLwLmpwMDw"
 	]
 
-# pull in the list and strip off /n's, then break in half, each row become a list of three strings
-# also figure out what is in common
+# pull in the list and strip off /n's
 def file_input(filename = 'input_day3.data'):
 	''' Reads in files and appends rows to list of rows '''
 	with open(filename, 'r') as infile:
@@ -29,7 +29,7 @@ def split_compartments(filerows):
 
 
 def common_items(comp1, comp2):
-	''' provide two string (each compartments inventory) get back the item common '''
+	''' provide two strings (each compartments inventory) get back the item in common '''
 	commonset = set(comp1)&set(comp2)
 	if len(commonset) != 1:
 		print("error, expecting only one commmon character")
@@ -37,6 +37,17 @@ def common_items(comp1, comp2):
 	# convert srings to sets then & together and get the single string in common
 	common_char = list(commonset)[0]
 	return common_char
+
+
+def find_group_badge(group_rows):
+	''' given a list of three elves rucksack contents (a group) find the common item between each sack, which is their badge '''
+	commonset = set(group_rows[0])&set(group_rows[1])&set(group_rows[2])
+	if len(commonset) != 1:
+		print("error, expecting only one commmon character")
+		return
+	# convert srings to sets then & together and get the single string in common
+	badge_char = list(commonset)[0]
+	return badge_char
 
 
 def get_priority(character):
@@ -60,3 +71,19 @@ def calc_p1_priority(filerows):
 		priority_sum += get_priority(common_char)
 	return priority_sum
 
+def calc_p2_priority(filerows):
+	''' go through three row elve groups and find common badge then priority and sum that'''
+	priority_sum = 0
+	for i in range(0,len(filerows),3):
+		elvegroup = filerows[i:i+3]
+		badge_char = find_group_badge(elvegroup)
+		priority_sum += get_priority(badge_char)
+	return priority_sum
+
+
+def give_answer():
+	''' just run this to spit out an answer '''
+	therows = file_input()
+	print("The priorty sum for part one is: {}".format(calc_p1_priority(therows)))
+	print("The priorty sum for part two is: {}".format(calc_p2_priority(therows)))
+	return
