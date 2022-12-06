@@ -26,4 +26,6 @@ def give_answer():
     ''' just run this to spit out an answer '''
     filestream = file_input()
     marker_answer = find_unique_marker(filestream, 4)
+    message_answer = find_unique_marker(filestream, 14)
     print("The marker for part one is at: {}".format(marker_answer))
+    print("The message for part two is at: {}".format(message_answer))
