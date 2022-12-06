@@ -99,20 +99,21 @@ def get_moves(movesstrings):
 def sort_crates(stacks, moveslist, model_no):
 	''' goes through moves, makes them, returns resulting moved_stacks '''
 	# model_no is the crane model number - 9000 or 9001
-	for onemove in moveslist:
-		if model_no == 9000:
-			# move one crate at a time so pop and append
+	if model_no == 9000:
+		# move one crate at a time so pop and append
+		for onemove in moveslist:
 			for i in range(0,onemove[0]):
 				stacks[onemove[2]].append(
 					stacks[onemove[1]].pop()
 					)
-		elif model_no == 9001:
-			# moving multiple crates at a time so slicing lists
+	elif model_no == 9001:
+		# moving multiple crates at a time so slicing lists
+		for onemove in moveslist:
 			addpart = stacks[onemove[1]][-1*onemove[0]:]
 			stacks[onemove[2]] += addpart
 			del stacks[onemove[1]][-1*onemove[0]:]
-		else:
-			print("bad crane model")
+	else:
+		print("bad crane model")
 	return stacks
 
 
@@ -136,5 +137,5 @@ def give_answer():
 	moved_stacks_p2 = sort_crates(p2_stacks, moves_list, 9001)
 	part2_topcrates = top_crates(moved_stacks_p2)
 	print("The top crates for part one are: {}".format(part1_topcrates))
-	print("The top crates for part one are: {}".format(part2_topcrates))
+	print("The top crates for part two are: {}".format(part2_topcrates))
 	return
