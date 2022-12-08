@@ -26,6 +26,8 @@ class Directory:
 
 	def calculate_size(self):
 		''' calculates the size of the directory '''
+		# not used but helful for testing if I need it, but I didn't
+		# thinking through this helped me get the add_size_to_parent sorted
 		calc_size = 0
 		# first add up files
 		for filesize in self.file_sizes:
