@@ -2,7 +2,6 @@
 
 # assumption
 # tree heights are single digit integers and arranged in a rectangular grid
-# support treegrids up to 999 x 999
 
 import array
 
@@ -26,6 +25,14 @@ def file_input(filename = 'input_day8.data'):
 		mytrees.addrow(row_heights)
 
 	return mytrees
+
+
+def give_answer():
+	''' just run this to spit out an answer '''
+	mytrees = file_input()
+	print("The number of trees visible is: {}".format(mytrees.trees_visible()))
+	print("The highest scenic score is: {}".format(mytrees.trees_scenic()))
+	return
 
 
 class TreeGrid:
@@ -52,7 +59,7 @@ class TreeGrid:
 
 	def gettree(self, row, column):
 		'''given row and colmn index reutrn the tree height value'''
-		#if either value is outside paraters throw an error
+		#if either value is outside paraters show error message
 		if row < self.row_total and column < self.column_total:
 			arraypos = self.row_total * row + column
 			treevalue = self.gridarray[arraypos]
@@ -87,7 +94,7 @@ class TreeGrid:
 		'''calculates number of trees trees_visible from viewpoint'''
 		# arraypos is the unique tree identifier
 		visible_set = set()
-		# add edge rows and columns first
+		# add edge rows and columns first only for visible
 		for i in range(0, self.column_total):
 			visible_set.add(i)
 			visible_set.add(i+(self.row_total - 1) * self.column_total)
@@ -97,19 +104,15 @@ class TreeGrid:
 
 		# now go through interior trees
 		# first by row
-		print("going by row")
 		for i in range(1,self.row_total-1):
 			row = self.getrow(i)
-			print("the row is: {}".format(row))
 			# go across a row
 			for j in range(1, self.column_total-1):
 				#look left
 				if row[j] > max(row[:j]):
-					print("{} visible from left. row {}, column {}".format(self.gettree(i,j)[1],i,j))
 					visible_set.add(self.gettree(i,j)[1])
 				#look right
 				if row[j] > max(row[j+1:]):
-					print("{} visible from right. row {}, column {}".format(self.gettree(i,j)[1],i,j))
 					visible_set.add(self.gettree(i,j)[1])
 
 
@@ -120,19 +123,86 @@ class TreeGrid:
 			for j in range(1, self.row_total-1):
 				#look up
 				if column[j] > max(column[:j]):
-					print("{} visible from top.  row {}, column {}".format(self.gettree(j,i)[1],j,i))
 					visible_set.add(self.gettree(j,i)[1])
 				#look right
 				if column[j] > max(column[j+1:]):
-					print("{} visible from bottom.  row {}, column {}".format(self.gettree(j,i)[1],j,i))
 					visible_set.add(self.gettree(j,i)[1])
 
-		return visible_set
+		visible_number = len(visible_set)
+		return visible_number
 
 
+	def trees_scenic(self):
+		'''calculates number of trees trees_visible from viewpoint'''
+		# arraypos is the unique tree identifier
+		number_trees = self.row_total * self.column_total
+		highest_score = 0
+		# go through each tree even throug we know edge trees return zero
+		# could do small optimization by only checking interior trees
+		for tree_pos in range(0,number_trees):
+			tree_score = self.calc_scenic_score(tree_pos)
+			if tree_score > highest_score:
+				highest_score = tree_score
+
+		return highest_score
 
 
+	def calc_scenic_score(self,arraypos):
+		'''given a tree array position calculate it's scenic score'''
+		treerow_number = int(arraypos/self.column_total)
+		treecolumn_number = arraypos - treerow_number * self.column_total
+		# get back the trees row and column
+		treerow = self.getrow(treerow_number)
+		treecolumn = self.getcolumn(treecolumn_number)
+		tree_height = self.gettree(treerow_number, treecolumn_number)[0]
+		upscore = 0
+		downscore = 0
+		leftscore = 0
+		rightscore =0
+		# look up
+		if treerow_number != 0:
+			up_potential = treecolumn[:treerow_number]
+			up_potential.reverse()
+			done = 0
+			for nextree in up_potential:
+				if nextree < tree_height and done !=1:
+					upscore += 1
+				elif done != 1:
+					upscore += 1
+					done = 1
+		# look down
+		if treerow_number + 1 != self.row_total:
+			down_potential = treecolumn[treerow_number+1:]
+			done = 0
+			for nextree in down_potential:
+				if nextree < tree_height and done !=1:
+					downscore += 1
+				elif done != 1:
+					downscore += 1
+					done = 1
 
+		# look left
+		if treecolumn_number != 0:
+			left_potential = treerow[:treecolumn_number]
+			left_potential.reverse()
+			done = 0
+			for nextree in left_potential:
+				if nextree < tree_height and done !=1:
+					leftscore += 1
+				elif done != 1:
+					leftscore += 1
+					done = 1
 
+		# look right
+		if treecolumn_number + 1 != self.column_total:
+			right_potential = treerow[treecolumn_number+1:]
+			done = 0
+			for nextree in right_potential:
+				if nextree < tree_height and done !=1:
+					rightscore += 1
+				elif done != 1:
+					rightscore += 1
+					done = 1
 
-
+		tree_score = upscore * downscore * leftscore * rightscore
+		return tree_score
