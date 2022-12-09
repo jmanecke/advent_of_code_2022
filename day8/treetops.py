@@ -52,9 +52,36 @@ class TreeGrid:
 
 	def gettree(self, row, column):
 		'''given row and colmn index reutrn the tree height value'''
-		arraypos = self.column_total * column + row
-		treevalue = self.gridarray[arraypos]
-		return treevalue
+		#if either value is outside paraters throw an error
+		if row < self.row_total and column < self.column_total:
+			arraypos = self.row_total * row + column
+			treevalue = self.gridarray[arraypos]
+			return treevalue, arraypos
+		else:
+			return "Error the grid is " + str(self.row_total) + " rows x " + str(self.column_total) + " columns"
+
+
+	def getrow(self, row):
+		'''given a row index return the row list'''
+		if row < self.row_total:
+			treerow = []
+			for i in range(0, self.column_total):
+				treerow.append(self.gettree(row, i)[0])
+			return treerow
+		else:
+			return "Error the grid is " + str(self.row_total) + " rows"
+
+
+	def getcolumn(self, column):
+		'''given a column index return the column list'''
+		if column < self.column_total:
+			treecolumn = []
+			for i in range(0, self.column_total):
+				treecolumn.append(self.gettree(i, column)[0])
+			return treecolumn
+		else:
+			return "Error the grid is " + str(self.column_total) + " columns"
+
 
 	def trees_visible(self):
 		'''calculates number of trees trees_visible from viewpoint'''
@@ -66,10 +93,39 @@ class TreeGrid:
 			visible_set.add(i+(self.row_total - 1) * self.column_total)
 		for i in range(1, self.row_total - 1):
 			visible_set.add(i * self.column_total)
-			visible_set.add((i+1) * self.column_total -1)
+			visible_set.add((i+1) * self.column_total-1)
 
 		# now go through interior trees
-		
+		# first by row
+		print("going by row")
+		for i in range(1,self.row_total-1):
+			row = self.getrow(i)
+			print("the row is: {}".format(row))
+			# go across a row
+			for j in range(1, self.column_total-1):
+				#look left
+				if row[j] > max(row[:j]):
+					print("{} visible from left. row {}, column {}".format(self.gettree(i,j)[1],i,j))
+					visible_set.add(self.gettree(i,j)[1])
+				#look right
+				if row[j] > max(row[j+1:]):
+					print("{} visible from right. row {}, column {}".format(self.gettree(i,j)[1],i,j))
+					visible_set.add(self.gettree(i,j)[1])
+
+
+		# next by columns
+		for i in range(1,self.column_total-1):
+			column = self.getcolumn(i)
+			# go down a column
+			for j in range(1, self.row_total-1):
+				#look up
+				if column[j] > max(column[:j]):
+					print("{} visible from top.  row {}, column {}".format(self.gettree(j,i)[1],j,i))
+					visible_set.add(self.gettree(j,i)[1])
+				#look right
+				if column[j] > max(column[j+1:]):
+					print("{} visible from bottom.  row {}, column {}".format(self.gettree(j,i)[1],j,i))
+					visible_set.add(self.gettree(j,i)[1])
 
 		return visible_set
 
