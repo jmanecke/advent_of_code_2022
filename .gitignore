@@ -1,3 +1,6 @@
+# ingoore my advent of code data files I save from the site
+input_day*.data
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
