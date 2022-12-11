@@ -14,6 +14,11 @@ testfile = 'test_day10.data'
 #
 #
 
+screen_test = []
+line = "########################################"
+for i in range(0,6):
+	screen_test.append(line)
+
 # pull in the processor output format it for use
 def file_input(filename = 'input_day10.data'):
 	''' Reads in files and appends rows to list of rows then does more '''
@@ -55,5 +60,57 @@ def sum_selected_strengths(cycles, start=20, end=225, interval=40):
 	return strength_sum
 
 
-	
+def give_answer():
+	''' just run this to spit out an answer '''
+	processor_lines = file_input()
+	cycles = input_parse(processor_lines)
+	calculate_register(cycles)
+	print("The part 1 answer is: {}".format(sum_selected_strengths(cycles)))
+	print()
+	lines = calculate_screen(cycles)
+	myscreen = build_screen(lines)
+	print("The screen for part 2 is:")
+	print()
+	show_screen(myscreen)
+	print()
+	return
 
+
+def show_screen(screen = screen_test):
+	'''prints out a six line screen'''
+	for i in range (0,6):
+		print(screen[i])
+	return
+
+
+def calculate_screen(cycles):
+	'''chooses whether pixels are on or off based on sprite position'''
+	lines = []
+	for l in range(0,6):
+		screenlit = []
+		for i in range(0,40):
+			p2cycle = l * 40 + i
+			sprite_pos = cycles[p2cycle][1]
+			if i >= sprite_pos-1 and i <= sprite_pos+1: 
+				screenlit.append(True)
+			else:
+				screenlit.append(False)
+		lines.append(screenlit)
+	return lines
+
+
+def build_screen(lines):
+	''' create strings out of the on off and build a screen '''
+	'give lines of on/off make a screen of strings'
+	ison = '#'
+	isoff = ' '
+	screen = []
+	for line in lines:
+		thestring = str()
+		for character in line:
+			if character:
+				thestring += ison
+			else:
+				thestring += isoff
+		screen.append(thestring)
+	return screen
