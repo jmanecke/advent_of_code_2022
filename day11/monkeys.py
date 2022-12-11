@@ -47,8 +47,6 @@ def process_lines(notes_lines):
 
 def operation_parse(operation):
 	'''parses an operation string'''
-	print("the operation string is:")
-	print(operation)
 	if operation.strip() == 'Operation: new = old * old':
 		opp_type = 'power'
 		mag = 2
@@ -64,22 +62,25 @@ def operation_parse(operation):
 	theoperation = [opp_type, mag]
 	return theoperation
 
-def play_game(monkeying, rounds=20):
+def play_game(monkeying, part, rounds=20):
 	''' runs through rounds number of the game '''
-	for round in range(0,20):
-		print("round {}".format(round))
+	for round in range(0,rounds):
+		#print("round {}".format(round))
+		monkeying = round_move(monkeying, part)
 	# buld list of active monkeys
 	number_inspections = []
 	for monkey in monkeying.keys():
 		number_inspections.append(monkeying[monkey]['number_inspected'])
+	number_inspections.sort()
+	monkey_business = number_inspections[-1] * number_inspections[-2]
+	return monkey_business
 
-	return number_inspections
 
-
-def round_move(monkeying):
+def round_move(monkeying, part):
 	'''go through one game round'''
 	for monkey in monkeying.keys():
-		# skip a monkey's turn if they have not equipment
+		#print("Monkey {} moves now".format(monkey))
+		# skip a monkey's turn if they have no equipment
 		if len(monkeying[monkey]['equipment']) != 0:
 			monkey_divisor = monkeying[monkey]['test_number']
 			to_true = monkeying[monkey]['true_throw']
@@ -87,17 +88,26 @@ def round_move(monkeying):
 			opp_type = monkeying[monkey]['opp_type']
 			opp_mag = monkeying[monkey]['opp_magnitude']
 
-			# go trhough each item in turn
-			for item in monkeying[monkey]['equipment']:
+			# go through each item in turn
+			#print("the monkeys quipment is {}".format(monkeying[monkey]['equipment']))
+			#make a copy to iterate through since we'll modify the list as we go
+			for item in monkeying[monkey]['equipment'][:]:
 				monkeying[monkey]['equipment'].remove(item)
+				#print("     removed item {} for inspection".format(item))
 				monkeying[monkey]['number_inspected'] += 1
 				inspection_worry = inspect_item(item, opp_type, opp_mag)
-				test_worry = inspection_worry // 3
+				if part == 'p1':
+					test_worry = inspection_worry // 3
+				else:
+					test_worry = inspection_worry
 				if test_worry % monkey_divisor == 0:
 					monkeying[to_true]['equipment'].append(test_worry)
 				else:
 					monkeying[to_false]['equipment'].append(test_worry)
+			# end of one item
 		#end of one monkey's turn
+		#print("end of turn for monkey {}".format(monkey))
+		#print()
 	# end of the round
 	return monkeying
 
@@ -115,14 +125,36 @@ def inspect_item(item, opp_type, opp_mag):
 	return opp_result
 
 
-def give_answer():
+def show_monkeys(monkeydict):
+	'''print out the current monkeys and their sate'''
+	for monkey in monkeydict.keys():
+		print("Monkey number " + monkey)
+		print("equipment:   {}".format(monkeydict[monkey]['equipment']))
+		print("opp_type:    {}".format(monkeydict[monkey]['opp_type']))
+		print("opp_magn:    {}".format(monkeydict[monkey]['opp_magnitude']))
+		print("test_number: {}".format(monkeydict[monkey]['test_number']))
+		print("true_throw:  {}".format(monkeydict[monkey]['true_throw']))
+		print("false_throw: {}".format(monkeydict[monkey]['false_throw']))
+		print("number_insp: {}".format(monkeydict[monkey]['number_inspected']))
+		print()
+		print()
+	return
+
+def give_answer(part = 'p1', filename = 'input_day11.data', rounds = 20):
 	'''just spit out the answers'''
 	import monkeys
-	filelines = monkeys.file_input(monkeys.testfile)
+	filelines = monkeys.file_input(filename)
 	monkeydict = monkeys.process_lines(filelines)
-	play_game(monkeydict)
+	if part == 'p1':
+		rounds = 20
+	elif part == 'p2':
+		rounds = 1000
+	else:
+		return "you used and invalid game part"
+	monkey_business = play_game(monkeydict, part, rounds)
+	print("The level of monkey business, based on {} rules, is {}".format(part, monkey_business))
 
-
+	return
 
 
 
