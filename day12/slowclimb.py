@@ -31,10 +31,10 @@ class Grid:
 			column = 0
 			for character in rowcharlist:
 				if character == 'S':
-					start_pos = (row_number,column)
+					start_pos = (column, row_number)
 					character = 'a'
 				if character == 'E':
-					end_pos = (row_number,column)
+					end_pos = (column, row_number)
 					character = 'z'
 				rowlist.append(ord(character) - 97)
 				column += 1
@@ -187,12 +187,12 @@ def find_adjacencies(grid, graph):
 	return
 
 
-def give_answer():
-	grid_lines = file_input(testfile)
+def give_answer(fileinput = 'input_day12.data'):
+	grid_lines = file_input(fileinput)
 	mygrid = Grid()
 	mygrid.build_grid(grid_lines)
 	mygraph = Graph()
 	find_adjacencies(mygrid, mygraph)
-	mygraph.bfs_find_steps(mygrid.start_pos, goal_pos)
+	mygraph.bfs_find_steps(mygrid.start_node, mygrid.goal_node)
 
 
