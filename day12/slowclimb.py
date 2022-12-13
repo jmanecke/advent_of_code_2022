@@ -31,16 +31,18 @@ class Grid:
 			column = 0
 			for character in rowcharlist:
 				if character == 'S':
-					self.start_pos = (row_number,column)
+					start_pos = (row_number,column)
 					character = 'a'
 				if character == 'E':
-					self.end_pos = (row_number,column)
+					end_pos = (row_number,column)
 					character = 'z'
 				rowlist.append(ord(character) - 97)
 				column += 1
 			self.matrix.append(rowlist)
 			row_number += 1
 		self.total_nodes = row_number * number_columns
+		self.start_node = self.find_node(start_pos[0], start_pos[1])
+		self.goal_node = self.find_node(end_pos[0], end_pos[1])
 		return
 
 
@@ -69,28 +71,79 @@ class Graph:
 		return
 
 
-	def bfs_search(self,start_node):
+	def bfs_find_path(self,start_node, goal_node):
+		'''finds the shortest path and builds the path then returns it'''
 		#mark all nodes as not visited
 		total_nodes = max(self.graph) +1
-		print("total_nodes is: {}".format(total_nodes))
+		print("Total visitable nodes is: {}".format(total_nodes))
 		visited = [False] * total_nodes
 
 		# mark start node visited and add to the queue
+		# queue is a list of paths we're following
 		queue = []
-		queue.append(start_node)
-		print("node {} put in queue".format(start_node))
+		queue.append([start_node])
 		visited[start_node] = True
 
 		# pull from queue and mark visited if not there before, add adjacent to queue
 		while queue:
-			# deque vertex
-			vertex = queue.pop(0)
-			print(vertex, end = " ")
-			# get adjacent and check if visited
-			for i in self.graph[vertex]:
-				if visited[i] == False:
-					queue.append(i)
-					visited[i] = True
+			# deque path and work with last node
+			path = queue.pop(0)
+			if len(path) > 12:
+				print("popped at {} long path".format(path))
+			#print(path)
+			# get adjacent to last node and go through each neighbor
+			last_node_neigbors = self.graph[path[-1]]
+			for neighbor in last_node_neigbors:
+				new_path = list(path)
+				queue.append(new_path)
+				# check if we're at the goal
+				if neighbor == goal_node:
+					print("Shortest path = ", new_path)
+					print("length of path: {}".format(len(new_path)))
+					return
+				# updated visited and put path back into queue if not repeating
+				if visited[neighbor] == False:
+					queue.append(new_path)
+					visited[neighbor] = True
+		print("reached end with no path found")
+		return
+
+
+	def bfs_find_steps(self,start_node, goal_node):
+		'''finds only the number of steps in the shortest path'''
+		#mark all nodes as not visited
+		total_nodes = max(self.graph) +1
+		print("Total visitable nodes is: {}".format(total_nodes))
+		visited = [False] * total_nodes
+
+		# mark start node visited and add to the queue
+		# queue is a list of nodes and steps to them we're checking
+		steps = 0
+		queue = []
+		queue.append((start_node, steps))
+		visited[start_node] = True
+
+		# pull from queue and mark visited if not there before, add adjacent to queue
+		while queue:
+			# deque a vertex to check adjacents
+			path = queue.pop(0)
+			#print(path)
+			# get adjacent to last node and go through each neighbor
+			last_node_neigbors = self.graph[path[0]]
+			nextstep = path[1] + 1
+			for neighbor in last_node_neigbors:
+				
+				# check if we're at the goal
+				if neighbor == goal_node:
+					print("Shortest path found")
+					print("length of path: {}".format(nextstep))
+					return
+				# updated visited and put path back into queue if not repeating
+				if visited[neighbor] == False:
+					queue.append(((neighbor,nextstep)))
+					visited[neighbor] = True
+		print("reached end with no path found")
+		return
 
 
 def find_adjacencies(grid, graph):
@@ -102,44 +155,44 @@ def find_adjacencies(grid, graph):
 		print("y {}".format(y))
 		for x in range(0, grid_colmns):
 			print("  x {}".format(x))
-			n1 = x + y * grid_rows
+			n1 = grid.find_node(x,y)
 			if x != 0:
 				# check left
-				if grid.elevation(x,y) <= 1+ grid.elevation(x-1,y):
-					n2 = (x-1) * y * grid_rows
+				if grid.elevation(x,y) +1  >= grid.elevation(x-1,y):
+					n2 = grid.find_node(x-1,y)
 					graph.add_edge(n1, n2)
 
 			if x != grid_colmns -1:
 				# check right
-				if grid.elevation(x,y) <= 1 + grid.elevation(x+1,y):
-					n2 = (x+1) + y * grid_rows
+				if grid.elevation(x,y) +1 >= grid.elevation(x+1,y):
+					n2 = grid.find_node(x+1,y)
 					graph.add_edge(n1, n2)
 
 	for x in range(0, grid_colmns):
 		print("x {}".format(x))
 		for y in range(0, grid_rows):
 			print("  y {}".format(y))
-			n1 = x + y * grid_rows
+			n1 = grid.find_node(x,y)
 			if y != 0:
 				# check up
-				if grid.elevation(x,y) <= 1 + grid.elevation(x,y-1):
-					n2 = x + (y+1) * grid_rows
+				if grid.elevation(x,y) + 1 >= grid.elevation(x,y-1):
+					n2 = grid.find_node(x,y-1)
 					graph.add_edge(n1, n2)
 
 			if y != grid_rows -1:
 				# check down
-				if grid.elevation(x,y) <= 1 + grid.elevation(x,y+1):
-					n2 = x + (y+1) * grid_rows
+				if grid.elevation(x,y) + 1  >= grid.elevation(x,y+1):
+					n2 = grid.find_node(x,y+1)
 					graph.add_edge(n1, n2)
 	return
 
 
 def give_answer():
-	grid_lines = file_input(slowclimb.testfile)
-	mygrid = slowclimb.Grid()
+	grid_lines = file_input(testfile)
+	mygrid = Grid()
 	mygrid.build_grid(grid_lines)
-	mygraph = slowclimb.Graph()
+	mygraph = Graph()
 	find_adjacencies(mygrid, mygraph)
-	mygraph.bfs_search(mygrid.start_pos)
+	mygraph.bfs_find_steps(mygrid.start_pos, goal_pos)
 
 
