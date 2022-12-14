@@ -55,6 +55,16 @@ class Grid:
 		''' give an x and y get back the elevation of that node '''
 		return self.matrix[y][x]
 
+	def a_nodes(self):
+		'''find nodes that are 0 elevation'''
+		a_nodes = []
+		for y in range(0, len(self.matrix)):
+			for x in range(0,len(self.matrix[0])):
+				if self.matrix[y][x] == 0:
+					a_nodes.append(self.find_node(x,y))
+		return a_nodes
+
+
 
 class Graph:
 	''' graph of adjacencies that can BFS search itself'''
@@ -195,4 +205,14 @@ def give_answer(fileinput = 'input_day12.data'):
 	find_adjacencies(mygrid, mygraph)
 	mygraph.bfs_find_steps(mygrid.start_node, mygrid.goal_node)
 
-
+def part2_answer(fileinput = 'input_day12.data'):
+    ''' figure out multiple points'''
+    # build list of starting points
+    grid_lines = file_input(fileinput)
+    mygrid = Grid()
+    mygrid.build_grid(grid_lines)
+    mygraph = Graph()
+    find_adjacencies(mygrid, mygraph)
+    a_nodes = mygrid.a_nodes()
+    for node in a_nodes:
+    	mygraph.bfs_find_steps(node, mygrid.goal_node)
