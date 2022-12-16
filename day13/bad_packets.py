@@ -24,23 +24,30 @@ def eval_packet_pairs(thepackets):
 	''' go through the pairs of packet and check if they are in the right order '''
 	indices_sum = 0
 	for i in range(1,len(thepackets +1)):
-		right_order = eval_packet(packet_pair)
-		if right_order == True:
+		correct_order = eval_packet(packet_pair)
+		if correct_order == True:
 			indices_sum += i
 	return indices_sum
 
 
 def eval_pairs(packet_pair):
 	''' given a single packet pair go through all the checks for in in order '''
-	right_order = False
-	# check #1 - if both are integers
-	left = packet_pair['line1'][0]
-	right = packet_pair['line2'][0]
-	if type(left) == type(right):
-		if type(left) == type(int()):
-			if left < right:
-				right_order = True
-				return
+	while len(packet_pair['line1']) != 0:
+		if len(packet_pair['line1']) != 0:
+			#right ran out first
+			return False
+		# check #1 - if both are integers
+		left = packet_pair['line1'].pop(0)
+		right = packet_pair['line2'].pop(0)
+		if type(left) == type(right):
+			if type(left) == type(int()):
+				if left < right:
+					return True
+				elif right > left
+					return False
+			elif type(left) == type(list()):
+				subleft = left.pop(0)
+				subright = right.pop(0)
 
 
 
