@@ -129,20 +129,51 @@ def check_popped_result(left, right):
 	return order
 
 
+
+def all_packet_list(packet_dict):
+	'''return a list of all the packets'''
+	allpackets = []
+	for i in range(1,len(packet_dict) + 1):
+		left_packet = packet_dict[i]['left']
+		right_packet = packet_dict[i]['right']
+		allpackets.append(left_packet)
+		allpackets.append(right_packet)
+	return allpackets
+
+
+def compare_all_packets(allpackets, divider):
+	''' compare all packets to divider two or six'''
+	if divider == 'two':
+		compare_string = '[[2]]'
+		number_before = 0
+	elif divider == 'six':
+		compare_string = '[[6]]'
+		# know that [[2]] is before so start at 1
+		number_before = 1
+	else:
+		print("bad input")
+		return
+	# loop through all packets to find wich come before
+	for packet in allpackets:
+		compare_packet = json.loads(compare_string)
+		in_order = list_check(packet, compare_packet)
+		if in_order == 1:
+			number_before += 1
+	return number_before
+
+
+
 def give_answer():
 	''' just run and print the answers '''
 	thepackets = file_input()
 	answer_p1 = eval_packet_pairs(thepackets)
 	print("the part 1 answer is: {}".format(answer_p1))
-
-
-
-
-
-
-
-
-
-
-
-
+	# reload the packets 
+	thepackets = file_input()
+	packet_list = all_packet_list(thepackets)
+	index_two = 1 + compare_all_packets(packet_list, 'two')
+	# reload the packets 
+	thepackets = file_input()
+	packet_list = all_packet_list(thepackets)
+	index_six = 1 + compare_all_packets(packet_list, 'six')
+	print("the part 2 answer is: {}".format(index_two * index_six))
