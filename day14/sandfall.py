@@ -64,11 +64,54 @@ def build_grid(formations):
 	return rock_grid
 
 
-def add_formation(rock_grid, formation):
-	''' given a single formation list, add it to the grid '''
-	for move in formation:
-		print("something")
-		#do something
+def add_formations(rock_grid, formations):
+	''' given the formations lists, add it to the grid '''
+	for formation in formations:
+		line_start = None
+		for move in formation:
+			line_end = move
+			if line_start:
+				# after first pass, calculate_vector
+				if line_end[0] == line_start[0]:
+					# vertical move
+					magnitude = line_end[1] - line_start[1]
+					if magnitude < 0:
+						line_vector = (0,-1, (magnitude * -1) +1 )
+					elif magnitude > 0:
+						line_vector = (0, 1, magnitude + 1)
+					else:
+						print("something went wrong")
+
+				elif line_end[1] == line_start[1]:
+					# horizontal move
+					magnitude = line_end[0] - line_start[0]
+					if magnitude < 0:
+						line_vector = (-1,0, (magnitude * -1) +1 )
+					elif magnitude > 0:
+						line_vector = (1, 0, magnitude + 1)
+				else:
+					print("someting went wrong, diagonal formation detected")
+					return
+				# one line ready to mark
+				add_rock_line(rock_grid, line_start, line_vector)
+			#move marked, prepare for next
+			line_start = line_end
+		# end of one formation line
+
+	return
+
+
+def add_rock_line(rock_grid, line_start, line_vector):
+	''' receivew a start and vector, mark as rock '''
+	#line vector - (delta_x, delta_y, magnitude)
+	mark_position = line_start
+	for i in range(0,line_vector[2]):
+		rock_grid[mark_position] = 2
+		new_mark = (
+			mark_position[0] + line_vector[0],
+			mark_position[1] + line_vector[1]
+			)
+		mark_position = new_mark
 	return
 
 
